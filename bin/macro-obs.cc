@@ -20,34 +20,35 @@
 #include <string>
 #include <cstring>
 #include <map>
-
-// Helper to convert CXString to std::string
-std::string fromCXString(CXString cxstr) {
-    std::string result = clang_getCString(cxstr);
+#define test test
+using namespace std;
+// Helper to convert CXString to string
+string fromCXString(CXString cxstr) {
+    string result = clang_getCString(cxstr);
     clang_disposeString(cxstr);
     return result;
 }
 
 // Helper to get source location info
-std::string getLocation(CXSourceLocation loc) {
+string getLocation(CXSourceLocation loc) {
     CXFile file;
     unsigned line, column, offset;
     clang_getFileLocation(loc, &file, &line, &column, &offset);
     
     if (file) {
-        std::string filename = fromCXString(clang_getFileName(file));
-        return filename + ":" + std::to_string(line) + ":" + std::to_string(column);
+        string filename = fromCXString(clang_getFileName(file));
+        return filename + ":" + to_string(line) + ":" + to_string(column);
     }
     return "<unknown>";
 }
 
 // Get the source text for a range
-std::string getSourceText(CXTranslationUnit tu, CXSourceRange range) {
+string getSourceText(CXTranslationUnit tu, CXSourceRange range) {
     CXToken *tokens = nullptr;
     unsigned numTokens = 0;
     clang_tokenize(tu, range, &tokens, &numTokens);
     
-    std::string result;
+    string result;
     for (unsigned i = 0; i < numTokens; i++) {
         result += fromCXString(clang_getTokenSpelling(tu, tokens[i]));
         if (i < numTokens - 1) result += " ";
@@ -58,16 +59,16 @@ std::string getSourceText(CXTranslationUnit tu, CXSourceRange range) {
 }
 
 struct MacroInfo {
-    std::string name;
-    std::string location;
-    std::string definition;
+    string name;
+    string location;
+    string definition;
     bool is_function_like;
 };
 
 struct VisitorData {
     CXTranslationUnit tu;
-    std::string main_filename;
-    std::vector<MacroInfo> macros;
+    string main_filename;
+    vector<MacroInfo> macros;
     bool verbose;
 };
 
@@ -77,19 +78,19 @@ CXChildVisitResult visitor(CXCursor cursor, CXCursor parent, CXClientData client
     
     CXSourceLocation location = clang_getCursorLocation(cursor);
     
-    // Skip if not in main file
-    if (clang_Location_isInSystemHeader(location)) {
-        return CXChildVisit_Continue;
-    }
+//       // Skip if not in main file
+//       if (clang_Location_isInSystemHeader(location)) {
+//           return CXChildVisit_Continue;
+//       }
     
     CXFile file;
     clang_getFileLocation(location, &file, nullptr, nullptr, nullptr);
     if (!file) return CXChildVisit_Continue;
     
-    std::string filename = fromCXString(clang_getFileName(file));
-    if (filename != data->main_filename) {
-        return CXChildVisit_Continue;
-    }
+    string filename = fromCXString(clang_getFileName(file));
+//       if (filename != data->main_filename) {
+//           return CXChildVisit_Continue;
+//       }
     
     CXCursorKind kind = clang_getCursorKind(cursor);
     
@@ -107,29 +108,29 @@ CXChildVisitResult visitor(CXCursor cursor, CXCursor parent, CXClientData client
         data->macros.push_back(info);
         
         // Report to stderr
-        std::cerr << info.location << ": #define " << info.name;
+        cerr << info.location << ": #define " << info.name;
         if (info.is_function_like) {
-            std::cerr << "(...) [function-like]";
+            cerr << "(...) [function-like]";
         }
-        std::cerr << "\n";
+        cerr << "\n";
         if (data->verbose) {
-            std::cerr << "  Definition: " << info.definition << "\n";
+            cerr << "  Definition: " << info.definition << "\n";
         }
     }
     else if (kind == CXCursor_MacroExpansion) {
         // This is a macro usage, not definition
         // We might want to track these too for finding unused macros
         if (data->verbose) {
-            std::string name = fromCXString(clang_getCursorSpelling(cursor));
-            std::string loc = getLocation(location);
-            std::cerr << loc << ": Macro expansion: " << name << "\n";
+            string name = fromCXString(clang_getCursorSpelling(cursor));
+            string loc = getLocation(location);
+            cerr << loc << ": Macro expansion: " << name << "\n";
         }
     }
     else if (kind == CXCursor_InclusionDirective) {
         if (data->verbose) {
-            std::string included = fromCXString(clang_getCursorDisplayName(cursor));
-            std::string loc = getLocation(location);
-            std::cerr << loc << ": #include " << included << "\n";
+            string included = fromCXString(clang_getCursorDisplayName(cursor));
+            string loc = getLocation(location);
+            cerr << loc << ": #include " << included << "\n";
         }
     }
     
@@ -137,15 +138,15 @@ CXChildVisitResult visitor(CXCursor cursor, CXCursor parent, CXClientData client
 }
 
 void printUsage(const char* prog) {
-    std::cerr << "Usage: " << prog << " <file> [options] [-- clang-args...]\n";
-    std::cerr << "Options:\n";
-    std::cerr << "  -v, --verbose  Show macro expansions and includes\n";
-    std::cerr << "  -h, --help     Show this help\n";
-    std::cerr << "\nReports preprocessor constructs to stderr.\n";
-    std::cerr << "Outputs unchanged source to stdout.\n";
-    std::cerr << "\nExamples:\n";
-    std::cerr << "  " << prog << " source.c 2>macros.log > output.c\n";
-    std::cerr << "  " << prog << " source.c -v -- -I./include\n";
+    cerr << "Usage: " << prog << " <file> [options] [-- clang-args...]\n";
+    cerr << "Options:\n";
+    cerr << "  -v, --verbose  Show macro expansions and includes\n";
+    cerr << "  -h, --help     Show this help\n";
+    cerr << "\nReports preprocessor constructs to stderr.\n";
+    cerr << "Outputs unchanged source to stdout.\n";
+    cerr << "\nExamples:\n";
+    cerr << "  " << prog << " source.c 2>macros.log > output.c\n";
+    cerr << "  " << prog << " source.c -v -- -I./include\n";
 }
 
 int main(int argc, const char* argv[]) {
@@ -157,20 +158,20 @@ int main(int argc, const char* argv[]) {
     // Parse arguments
     const char* filename = nullptr;
     bool verbose = false;
-    std::vector<const char*> clang_args;
+    vector<const char*> clang_args;
     
     bool in_clang_args = false;
     for (int i = 1; i < argc; i++) {
         if (in_clang_args) {
             clang_args.push_back(argv[i]);
         }
-        else if (std::strcmp(argv[i], "--") == 0) {
+        else if (strcmp(argv[i], "--") == 0) {
             in_clang_args = true;
         }
-        else if (std::strcmp(argv[i], "-v") == 0 || std::strcmp(argv[i], "--verbose") == 0) {
+        else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0) {
             verbose = true;
         }
-        else if (std::strcmp(argv[i], "-h") == 0 || std::strcmp(argv[i], "--help") == 0) {
+        else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             printUsage(argv[0]);
             return 0;
         }
@@ -178,20 +179,20 @@ int main(int argc, const char* argv[]) {
             filename = argv[i];
         }
         else {
-            std::cerr << "Error: Unknown argument: " << argv[i] << "\n";
+            cerr << "Error: Unknown argument: " << argv[i] << "\n";
             printUsage(argv[0]);
             return 1;
         }
     }
     
     if (!filename) {
-        std::cerr << "Error: No input file specified\n";
+        cerr << "Error: No input file specified\n";
         printUsage(argv[0]);
         return 1;
     }
     
     // Add default clang args
-    std::vector<const char*> all_args = {
+    vector<const char*> all_args = {
         "-fsyntax-only",
         "-ferror-limit=0",
         "-Wno-everything"
@@ -214,14 +215,14 @@ int main(int argc, const char* argv[]) {
     );
     
     if (!tu) {
-        std::cerr << "Error: Failed to parse " << filename << "\n";
+        cerr << "Error: Failed to parse " << filename << "\n";
         clang_disposeIndex(index);
         return 1;
     }
     
     // Get main file
     CXFile mainFile = clang_getFile(tu, filename);
-    std::string mainFilename = fromCXString(clang_getFileName(mainFile));
+    string mainFilename = fromCXString(clang_getFileName(mainFile));
     
     // Visit AST to find macros
     VisitorData data;
@@ -229,23 +230,23 @@ int main(int argc, const char* argv[]) {
     data.main_filename = mainFilename;
     data.verbose = verbose;
     
-    std::cerr << "=== Macro Analysis: " << filename << " ===\n";
+    cerr << "=== Macro Analysis: " << filename << " ===\n";
     
     CXCursor cursor = clang_getTranslationUnitCursor(tu);
     clang_visitChildren(cursor, visitor, &data);
     
-    std::cerr << "\n=== Total: " << data.macros.size() << " macro definitions ===\n";
+    cerr << "\n=== Total: " << data.macros.size() << " macro definitions ===\n";
     
     // Output original source to stdout (null transformer)
-    std::ifstream in(filename);
+    ifstream in(filename);
     if (!in) {
-        std::cerr << "Error: Could not read source file\n";
+        cerr << "Error: Could not read source file\n";
         clang_disposeTranslationUnit(tu);
         clang_disposeIndex(index);
         return 1;
     }
     
-    std::cout << in.rdbuf();
+    cout << in.rdbuf();
     
     // Cleanup
     clang_disposeTranslationUnit(tu);
