@@ -1,8 +1,8 @@
 test: all
-	./bin/macro-obs ./bin/macro-obs.cc > output
+	./bin/macro-obs ./bin/macro-obs.cc 2>&1
 
 # build_local.sh - Build with local clang
-MAKEFLAGS+=rR -d
+MAKEFLAGS+=rR
 CXX:=clang++
 CC:=clang
 .PHONY: all FORCE
@@ -28,7 +28,7 @@ obj: $(c++/obj)
 #    
 #
 lib/libutil.a: $(c++/lib:.cc=.cc.oo)
-	ar r $@ $(c++/lib:.cc0=.cc.oo)
+	ar r $@ $(c++/lib:.cc=.cc.oo)
 	llvm-ranlib $@
 
 .PRECIOUS: */*.oo */*.a
@@ -40,9 +40,9 @@ clang-cpp-libs:= -lclang-cpp -lclang
 
 etc/libs:
 	printf "%s\n" $(shell llvm-config-19 --libs) $(clang-cpp-libs) $(my-libs) > $@
-etc/ldflags:
-	printf "%s\n" $(shell llvm-config-19 --ldflags) > $@ -v
-etc/cxxflags:
-	printf "%s\n" $(shell llvm-config-19 --cxxflags) > $@
+#    etc/ldflags:
+#    	printf "%s\n" $(shell llvm-config-19 --ldflags) > $@ -v
+#    etc/cxxflags:
+#    	printf "%s\n" $(shell llvm-config-19 --cxxflags) > $@
 Makefile:;
 

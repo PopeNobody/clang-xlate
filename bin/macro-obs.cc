@@ -12,7 +12,7 @@
  * Compile:
  *   g++ -std=c++17 -I./include macro_observer.cpp -o macro_observer -L./lib -lclang
  */
-
+//   
 #include <clang-c/Index.h>
 #include <iostream>
 #include <fstream>
@@ -71,29 +71,22 @@ struct VisitorData {
     vector<MacroInfo> macros;
     bool verbose;
 };
-
+ostream &operator << (ostream &lhs, MacroInfo rhs) {
+  return lhs << "MacroInfo{ }" << endl;
+};
 // Visitor callback
 CXChildVisitResult visitor(CXCursor cursor, CXCursor parent, CXClientData client_data) {
     VisitorData* data = static_cast<VisitorData*>(client_data);
     
     CXSourceLocation location = clang_getCursorLocation(cursor);
     
-//       // Skip if not in main file
-//       if (clang_Location_isInSystemHeader(location)) {
-//           return CXChildVisit_Continue;
-//       }
-    
     CXFile file;
     clang_getFileLocation(location, &file, nullptr, nullptr, nullptr);
-    if (!file) return CXChildVisit_Continue;
+//       if (!file) return CXChildVisit_Continue;
     
-    string filename = fromCXString(clang_getFileName(file));
-//       if (filename != data->main_filename) {
-//           return CXChildVisit_Continue;
-//       }
+//       string filename = fromCXString(clang_getFileName(file));
     
     CXCursorKind kind = clang_getCursorKind(cursor);
-    
     if (kind == CXCursor_MacroDefinition) {
         MacroInfo info;
         info.name = fromCXString(clang_getCursorSpelling(cursor));
@@ -107,8 +100,8 @@ CXChildVisitResult visitor(CXCursor cursor, CXCursor parent, CXClientData client
         
         data->macros.push_back(info);
         
-        // Report to stderr
         cerr << info.location << ": #define " << info.name;
+        cerr << info << endl;
         if (info.is_function_like) {
             cerr << "(...) [function-like]";
         }
@@ -118,8 +111,6 @@ CXChildVisitResult visitor(CXCursor cursor, CXCursor parent, CXClientData client
         }
     }
     else if (kind == CXCursor_MacroExpansion) {
-        // This is a macro usage, not definition
-        // We might want to track these too for finding unused macros
         if (data->verbose) {
             string name = fromCXString(clang_getCursorSpelling(cursor));
             string loc = getLocation(location);
@@ -166,7 +157,7 @@ int main(int argc, const char* argv[]) {
             clang_args.push_back(argv[i]);
         }
         else if (strcmp(argv[i], "--") == 0) {
-            in_clang_args = true;
+            in_clang_args = !in_clang_args;
         }
         else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0) {
             verbose = true;
@@ -228,7 +219,7 @@ int main(int argc, const char* argv[]) {
     VisitorData data;
     data.tu = tu;
     data.main_filename = mainFilename;
-    data.verbose = verbose;
+    data.verbose = true;
     
     cerr << "=== Macro Analysis: " << filename << " ===\n";
     
