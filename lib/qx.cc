@@ -21,6 +21,6 @@ string qx(const string& cmd) {
 }
 
 // Usage:
-string output = qx("llvm-config --includedir");
-string files = qx("find /usr/include -name '*.h'");
+//   string output = qx("llvm-config --includedir");
+//   string files = qx("find /usr/include -name '*.h'");
 
