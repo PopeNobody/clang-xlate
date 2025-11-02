@@ -1,4 +1,8 @@
 -lLLVM-19
 -lclang-cpp
 -lclang
+-lssl
+-lcrypto
+-lpthread
 lib/libutil.a
+-lcpp-httplib 

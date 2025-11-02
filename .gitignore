@@ -9,3 +9,5 @@ shit*
 *.a
 bin/decls
 bin/macro-obs
+bin/grok
+bin/vi-perl

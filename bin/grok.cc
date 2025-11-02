@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <boost/json.hpp>
+#include <json.hh>
 #include <httplib.h>
 #include <cstdlib>
 
@@ -90,8 +90,9 @@ json grok_chat(const json& messages, bool with_tools = true) {
 // === TOOL HANDLER ===
 json handle_tool_call(const json& tool_call) {
     string name = tool_call["function"]["name"];
-    json args = json::parse(tool_call["function"]["arguments"]);
-
+    auto func = tool_call.at("function");
+    auto str = func.at("arguments").get<std::string>();
+    auto args = json::parse(str);
     if (name == "search_knowledge") {
         return call_mcp("search_knowledge", args);
     } else if (name == "create_note") {

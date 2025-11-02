@@ -1,3 +1,4 @@
+all:
 test: all
 	./bin/macro-obs ./bin/macro-obs.cc 2>&1
 
