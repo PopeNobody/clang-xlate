@@ -1,3 +1,13 @@
 tmp
 *.cc.*
 *.S.*
+*.new
+*.out
+*.log
+fuck*
+shit*
+*.a
+bin/decls
+bin/macro-obs
+bin/grok
+bin/vi-perl
