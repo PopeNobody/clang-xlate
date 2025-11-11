@@ -19,15 +19,25 @@ c++/lib:=$(wildcard lib/*.cc)
 c++/obj:=$(c++/src:.cc=.cc.oo)
 c++/lst:=$(c++/bin:.cc=.cc.lst)
 
-clean=$(foreach s,bin lib obj,$(c++/$s))
+clean:=$(foreach s,bin lib obj,$(c++/$s))
+clean:=$(wildcard bin/*.cc.* lib/*.cc.*)
+clean:=$(filter-out bin/*.*,$(wildcard bin/*))
+clean:=$(sort $(clean))
+
+clean:
+	$(if $(clean),rm -vf $(clean))
+
 all: $(c++/bin)
 obj: $(c++/obj)
 
-
+$(wildcard etc/*flags): Makefile
+	echo MF changed
 
 %: %.cc.oo etc/ldflags etc/libs $(my-libs) $(spec_libs)
 	$(CXX) @etc/ldflags -o $@ $< @etc/libs $(spec_libt)
-	sort .gitignore -u -o .gitignore <(echo $@)
+	sort .gitignore -u <(echo $@) -o .gitignore.new
+	cmp .gitignore .gitignore.new || mv -v .gitignore.new .gitignore
+	rm -vf .gitignore.new
 
 %.cc.oo: %.cc etc/cxxflags
 	$(CXX) -c @etc/cxxflags -o $@ $<
