@@ -21,7 +21,7 @@ c++/src:=$(wildcard bin/*.cc)
 c++/bin:=$(c++/src:.cc=)
 c++/lib:=$(wildcard lib/*.cc)
 c++/obj:=$(c++/src:.cc=.cc.oo)
-c++/lst:=$(c++/bin:.cc=.cc.lst)
+c++/lst:=$(c++/src:.cc=.cc.lst)
 
 clean:=$(foreach s,bin lib obj,$(c++/$s))
 clean:=$(wildcard bin/*.cc.* lib/*.cc.*)
