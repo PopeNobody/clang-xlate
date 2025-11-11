@@ -32,7 +32,7 @@ clean:=$(sort $(clean))
 #    clean:
 #    	$(if $(clean),rm -vf $(clean))
 
-all: #$(c++/bin)
+all: $(c++/bin)
 obj: #$(c++/obj)
 
 %: %.cc.oo etc/ldflags etc/libs $(my-libs)
