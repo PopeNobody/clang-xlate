@@ -17,12 +17,17 @@ c++/src:=$(wildcard bin/*.cc)
 c++/bin:=$(c++/src:.cc=)
 c++/lib:=$(wildcard lib/*.cc)
 c++/obj:=$(c++/src:.cc=.cc.oo)
+c++/lst:=$(c++/bin:.cc=.cc.lst)
 
+clean=$(foreach s,bin lib obj,$(c++/$s))
 all: $(c++/bin)
 obj: $(c++/obj)
 
-%: %.cc.oo etc/ldflags etc/libs $(my-libs)
-	$(CXX) @etc/ldflags -o $@ $< @etc/libs
+
+
+%: %.cc.oo etc/ldflags etc/libs $(my-libs) $(spec_libs)
+	$(CXX) @etc/ldflags -o $@ $< @etc/libs $(spec_libt)
+	touch $@
 
 %.cc.oo: %.cc etc/cxxflags
 	$(CXX) -c @etc/cxxflags -o $@ $<
@@ -41,9 +46,9 @@ clang-cpp-libs:= -lclang-cpp -lclang
 
 etc/libs:
 	printf "%s\n" $(shell llvm-config-19 --libs) $(clang-cpp-libs) $(my-libs) > $@
-#    etc/ldflags:
-#    	printf "%s\n" $(shell llvm-config-19 --ldflags) > $@ -v
-#    etc/cxxflags:
-#    	printf "%s\n" $(shell llvm-config-19 --cxxflags) > $@
+etc/ldflags:
+	printf "%s\n" $(shell llvm-config-19 --ldflags) > $@ -v
+etc/cxxflags:
+	printf "%s\n" $(shell llvm-config-19 --cxxflags) > $@
 Makefile:;
 

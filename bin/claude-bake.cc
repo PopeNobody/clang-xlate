@@ -17,6 +17,7 @@
 using namespace clang;
 using namespace clang::tooling;
 using namespace llvm;
+using namespace std;
 
 static cl::OptionCategory BakeCategory("clang-bake options");
 static cl::opt<bool> IgnoreDefines("ignore-defines", cl::desc("Ignore #define in file"), cl::cat(BakeCategory));
@@ -134,7 +135,10 @@ protected:
         }
 
         std::error_code EC;
-        raw_fd_ostream OS(OutputFile.empty() ? "-" : OutputFile, EC);
+        string name("-");
+        if(!OutputFile.empty())
+          name=OutputFile;
+        raw_fd_ostream OS(name, EC);
         if (EC) { 
             errs() << "Write error: " << EC.message() << "\n"; 
             return; 

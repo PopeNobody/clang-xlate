@@ -1,4 +1,5 @@
 -I/usr/lib/llvm-19/include
+-v
 -Iinc
 -std=c++17
 -ggdb3
