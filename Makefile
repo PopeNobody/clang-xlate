@@ -12,8 +12,10 @@ all:
 
 my-libs:= 
 #lib/libutil.a
-%: %.new 
-	cp $< $@
+
+# Remove the problematic catch-all pattern rule
+# %: %.new 
+#	cp $< $@
 
 c++/ign:=$(file <.make-ignore)
 c++/src:=$(wildcard bin/*.cc)
@@ -33,8 +35,8 @@ clean:=$(sort $(clean))
 all: #$(c++/bin)
 obj: #$(c++/obj)
 
-%: %.cc.oo etc/ldflags etc/libs $(my-libs) $(spec_libs)
-	$(CXX) @etc/ldflags -o $@ $< @etc/libs $(spec_libs)
+%: %.cc.oo etc/ldflags etc/libs $(my-libs)
+	$(CXX) @etc/ldflags -o $@ $< @etc/libs
 #    	sort .gitignore -u <(echo $@) -o .gitignore.new
 #    	cmp .gitignore .gitignore.new || mv -v .gitignore.new .gitignore
 #    	rm -vf .gitignore.new
@@ -50,8 +52,11 @@ obj: #$(c++/obj)
 .PRECIOUS: */*.oo */*.a $(c++/exes)
 
 etc/cxxflags:
-etc/ldflags:
-etc/libs:
+	@mkdir -p etc
+	llvm-config-19 --cxxflags > $@
+
+etc/ldflags: ;
+etc/libs: ;
 clang-cpp-libs:= -lclang-cpp -lclang
 
 #    etc/libs:
