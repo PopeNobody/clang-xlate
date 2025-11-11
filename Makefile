@@ -17,9 +17,7 @@ my-libs:=
 # %: %.new 
 #	cp $< $@
 
-c++/ign:=$(file <.make-ignore)
 c++/src:=$(wildcard bin/*.cc)
-c++/src:=$(filter-out $(c++/ign),$(c++/src))
 c++/bin:=$(c++/src:.cc=)
 c++/lib:=$(wildcard lib/*.cc)
 c++/obj:=$(c++/src:.cc=.cc.oo)
