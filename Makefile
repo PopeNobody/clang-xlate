@@ -4,6 +4,7 @@ test: all
 
 # build_local.sh - Build with local clang
 MAKEFLAGS+=rR
+SHELL:=/bin/bash -c >out 2>&1
 CXX:=clang++
 CC:=clang
 .PHONY: all FORCE
@@ -13,7 +14,9 @@ my-libs:= lib/libutil.a
 %: %.new 
 	cp $< $@
 
+c++/ign:=$(file <.make-ignore)
 c++/src:=$(wildcard bin/*.cc)
+c++/src:=$(filter-out $(c++/ign),$(c++/src))
 c++/bin:=$(c++/src:.cc=)
 c++/lib:=$(wildcard lib/*.cc)
 c++/obj:=$(c++/src:.cc=.cc.oo)
@@ -23,18 +26,15 @@ clean:=$(foreach s,bin lib obj,$(c++/$s))
 clean:=$(wildcard bin/*.cc.* lib/*.cc.*)
 clean:=$(filter-out bin/*.*,$(wildcard bin/*))
 clean:=$(sort $(clean))
-
+$(error)
 clean:
 	$(if $(clean),rm -vf $(clean))
 
 all: $(c++/bin)
 obj: $(c++/obj)
 
-$(wildcard etc/*flags): Makefile
-	echo MF changed
-
 %: %.cc.oo etc/ldflags etc/libs $(my-libs) $(spec_libs)
-	$(CXX) @etc/ldflags -o $@ $< @etc/libs $(spec_libt)
+	$(CXX) @etc/ldflags -o $@ $< @etc/libs $(spec_libs)
 	sort .gitignore -u <(echo $@) -o .gitignore.new
 	cmp .gitignore .gitignore.new || mv -v .gitignore.new .gitignore
 	rm -vf .gitignore.new
