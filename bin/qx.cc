@@ -1,2 +1,5 @@
-#inclue "qx.hh"
-:
+#include "qx.hh"
+
+int main(int, char**) {
+  return 1;
+};
