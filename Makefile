@@ -27,7 +27,7 @@ obj: $(c++/obj)
 
 %: %.cc.oo etc/ldflags etc/libs $(my-libs) $(spec_libs)
 	$(CXX) @etc/ldflags -o $@ $< @etc/libs $(spec_libt)
-	touch $@
+	sort .gitignore -u -o .gitignore <(echo $@)
 
 %.cc.oo: %.cc etc/cxxflags
 	$(CXX) -c @etc/cxxflags -o $@ $<
