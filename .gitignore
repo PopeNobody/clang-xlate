@@ -1,4 +1,5 @@
 *.a
+*hide*
 bin/claude-bake
 bin/decls
 bin/grok

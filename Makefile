@@ -22,8 +22,6 @@ $(foreach d,$(sort $(dir $(lun))),$(eval lib+=$(d:/=)))
 
 libs:=util/libutil.a
 all: $(libs)
-
-
 %: %.cc.oo etc/ldflags etc/libs $(libs)
 	$(CXX) @etc/ldflags -o $@ $< @etc/libs
 
@@ -35,11 +33,16 @@ $1:=$$(filter $1/,$(aun))
 $1/lib$1.a: 
 	ar r $@ $$($1:=$($1))
 	llvm-ranlib $@
+
+$(eval $($$1))
 endef
-
-$(foreach l,$(lib),$(warning $(call deflib,$l)))
+wareval=$(warning $1) $(eval $1)
+xshow=$1:=$$($1)
+show=$(warning $(call xshow,$1))
+$(foreach l,$(lib),$(call wareval,$(call deflib,$l)))
+$(warning $(call xshow,util))
 .PRECIOUS: */*.oo */*.a
-
+showx:=$(call xshow,util)
 etc/cxxflags:
 etc/ldflags:
 etc/libs:
