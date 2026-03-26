@@ -17,10 +17,8 @@ my-libs:=
 # %: %.new 
 #	cp $< $@
 
-c++/ign:=$(file <.make-ignore)
 c++/src:=$(wildcard bin/*.cc)
-c++/src:=$(filter-out $(c++/ign),$(c++/src))
-c++/bin:=$(patsubst %.cc,%,$(c++/src))
+c++/bin:=$(c++/src:.cc=)
 c++/lib:=$(wildcard lib/*.cc)
 c++/obj:=$(c++/src:.cc=.cc.oo)
 c++/lst:=$(c++/src:.cc=.cc.lst)
@@ -32,7 +30,8 @@ clean:=$(sort $(clean))
 #    clean:
 #    	$(if $(clean),rm -vf $(clean))
 
-all: $(c++/bin)
+all: #$(c++/bin)
+obj: #$(c++/obj)
 
 %: %.cc.oo etc/ldflags etc/libs $(my-libs)
 	$(CXX) @etc/ldflags -o $@ $< @etc/libs
