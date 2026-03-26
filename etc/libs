@@ -4,5 +4,4 @@
 -lssl
 -lcrypto
 -lpthread
-lib/libutil.a
 -lcpp-httplib 

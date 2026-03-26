@@ -1,0 +1,8 @@
+bin/clang-bake.cc
+bin/decls.cc
+bin/grok.cc
+bin/macro-obs.cc
+bin/qx.cc
+bin/vi-perl.cc
+bin/xcb-get.cc
+bin/xcb-set.cc
